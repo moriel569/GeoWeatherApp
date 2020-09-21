@@ -1,9 +1,9 @@
 import {check, PERMISSIONS, RESULTS} from 'react-native-permissions';
 import Geolocation from 'react-native-geolocation-service';
 
-const TOKEN = 'pk.8630a6bc93caccd54ac89336b48ded7b';
+const APPID = '7461936da212f6a73296e33719a25f45';
 
-function getLocationPermission() {
+export function getLocationPermission() {
   return new Promise((resolve, reject) => {
     check(PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION)
       .then((result) => {
@@ -32,15 +32,15 @@ function getLocationPermission() {
   });
 }
 
-function getCurrentPosition() {
+export function getCurrentPosition() {
   return new Promise((resolve, reject) => {
     Geolocation.getCurrentPosition((data) => resolve(data));
   });
 }
 
-function getAddressByLatAndLong(lat, lng) {
+export function getWeatherByCoords(lat, lon) {
   return fetch(
-    `https://eu1.locationiq.com/v1/reverse.php?key=${TOKEN}&lat=${lat}&lon=${lng}&format=json`,
+    `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${APPID}`,
     {
       method: 'GET',
       headers: {
@@ -49,23 +49,7 @@ function getAddressByLatAndLong(lat, lng) {
     },
   )
     .then((response) => response.json())
-    .then((data) => {
-      return data;
+    .then((weatherInfo) => {
+      return weatherInfo;
     });
 }
-
-function geoService() {
-  getLocationPermission()
-    .then(() => {
-      return getCurrentPosition();
-    })
-    .then((data) => {
-      let {
-        coords: {latitude, longitude},
-      } = data;
-      return getAddressByLatAndLong(latitude, longitude);
-    })
-    .catch((err) => console.log(err));
-}
-
-export default geoService;
