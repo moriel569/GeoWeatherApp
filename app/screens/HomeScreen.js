@@ -9,7 +9,7 @@ export default function HomeScreen() {
   const [geoData, setGeoData] = useState([]);
   useEffect(() => {
     geoService();
-
+    console.log(geoData);
     // storeWeather(geoData);
   }, []);
 
@@ -25,20 +25,18 @@ export default function HomeScreen() {
         return getWeatherByCoords(latitude, longitude);
       })
       .then((info) => {
-        console.log(info);
-        setGeoData([
-          {
-            longitude: info.coord.lon,
-            latitude: info.coord.lat,
-            date: info.dt,
-            country: info.sys.country,
-            city: info.name,
-            weather: info.weather[0].description,
-            icon: info.weather[0].icon,
-            temperature: info.main.temp,
-            selected: true,
-          },
-        ]);
+        console.log('geoInfo', info);
+        setGeoData({
+          longitude: info.coord.lon,
+          latitude: info.coord.lat,
+          date: info.dt,
+          country: info.sys.country,
+          city: info.name,
+          weather: info.weather[0].description,
+          icon: info.weather[0].icon,
+          temperature: info.main.temp,
+          selected: true,
+        });
       })
       .catch((err) => console.log(err));
   }
