@@ -1,16 +1,25 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, StyleSheet, Image} from 'react-native';
+import {
+  ActivityIndicator,
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  ScrollView,
+  Dimensions,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {check, PERMISSIONS, RESULTS} from 'react-native-permissions';
 import Geolocation from 'react-native-geolocation-service';
-import {storeWeather} from './HistoryScreen';
+import AsyncStorage from '@react-native-community/async-storage';
 
 export default function HomeScreen() {
   const [geoData, setGeoData] = useState([]);
+  const {height, width} = Dimensions.get('window');
   useEffect(() => {
     geoService();
-    console.log(geoData);
-    // storeWeather(geoData);
+
+    // logCurrentStorage();
   }, []);
 
   function geoService() {
@@ -25,7 +34,6 @@ export default function HomeScreen() {
         return getWeatherByCoords(latitude, longitude);
       })
       .then((info) => {
-        console.log('geoInfo', info);
         setGeoData({
           longitude: info.coord.lon,
           latitude: info.coord.lat,
@@ -35,8 +43,9 @@ export default function HomeScreen() {
           weather: info.weather[0].description,
           icon: info.weather[0].icon,
           temperature: info.main.temp,
-          selected: true,
+          loaded: true,
         });
+        return storeWeather(geoData);
       })
       .catch((err) => console.log(err));
   }
@@ -93,8 +102,23 @@ export default function HomeScreen() {
       });
   }
 
-  return (
-    <View style={{flex: 1}}>
+  const storeWeather = (weatherData) => {
+    console.log(geoData);
+    try {
+      const jsonWeatherData = JSON.stringify(weatherData);
+      const storageKey = JSON.stringify(weatherData.date);
+
+      AsyncStorage.setItem(storageKey, jsonWeatherData);
+      console.log('Data saved to storage');
+
+      return jsonWeatherData;
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  return geoData.loaded === true ? (
+    <ScrollView style={{flex: 1, backgroundColor: '#7453ec'}}>
       <View
         style={{
           marginVertical: 10,
@@ -102,15 +126,17 @@ export default function HomeScreen() {
           borderColor: 'green',
           alignItems: 'center',
         }}>
-        <Text style={{fontSize: 30}}>Weather Today</Text>
+        <Text style={{fontSize: 30, color: '#fff', fontWeight: '700'}}>
+          Weather Today
+        </Text>
       </View>
       <View
         style={{
           justifyContent: 'center',
-          marginVertical: '10%',
+          marginVertical: 20,
           alignItems: 'center',
         }}>
-        <Icon name="location" color={'red'} size={75} />
+        <Icon name="location" color={'#cbec53'} size={75} />
         <Text style={styles.text}>Latitude: {geoData.latitude}</Text>
         <Text style={styles.text}>Longitude: {geoData.longitude}</Text>
         <Text style={styles.text}>
@@ -127,13 +153,18 @@ export default function HomeScreen() {
         />
         <Text style={styles.text}>{geoData.weather}</Text>
         <Text style={styles.text}>
-          {(geoData.temperature - 273.15).toFixed(1)}℃
+          {(geoData.temperature - 273.15).toFixed(1)} ℃
         </Text>
       </View>
+    </ScrollView>
+  ) : (
+    <View
+      style={{justifyContent: 'center', alignItems: 'center', height, width}}>
+      <ActivityIndicator size="large" color="#7453ec" />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  text: {fontSize: 25, marginVertical: 3},
+  text: {fontSize: 25, marginVertical: 3, color: '#fff'},
 });

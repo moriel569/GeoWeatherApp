@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   SafeAreaView,
   View,
@@ -9,49 +9,69 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 
-export const storeWeather = async (weatherData) => {
-  try {
-    const jsonWeatherData = JSON.stringify(weatherData);
-    await AsyncStorage.setItem(
-      JSON.stringify(weatherData.date),
-      jsonWeatherData,
-    );
-    console.log('Throw Data to Cache');
-    return jsonWeatherData != null ? JSON.parse(weatherData) : null;
-  } catch (e) {
-    console.log(e);
-  }
-};
+export default function HistoryScreen() {
+  const [storedData, setStoredData] = useState([]);
 
-const HistoryScreen = () => {
-  const [storeData, setSoreData] = useState([]);
   useEffect(() => {
-    getWeather();
+    logCurrentStorage();
   }, []);
 
-  const getWeather = async () => {
-    try {
-      const jsonWeatherData = await AsyncStorage.getItem('@storage_Key');
-      jsonWeatherData === undefined
-        ? console.log('No Cached Data')
-        : console.log('Get Data from Cache');
-      const recievedData = JSON.parse(jsonWeatherData);
-      return recievedData != null ? setSoreData([{recievedData}]) : null;
-    } catch (e) {
-      console.log(e);
-    }
-  };
+  // const getWeather = async () => {
+  //   try {
+  //     const getWeatherData = await AsyncStorage.getItem('@storage_Key');
+  //     getWeatherData === undefined
+  //       ? console.log('No Cached Data')
+  //       : console.log('Get Data from Cache');
+  //     const recievedData = JSON.parse(getWeatherData);
+  //     return recievedData != null ? setStoredData([{recievedData}]) : null;
+  //   } catch (e) {
+  //     console.log(e);
+  //   }
+  // };
+
+  // const getWeather = async () => {
+  //   try {
+  //     AsyncStorage.getAllKeys().then((keyArray) => {
+  //       AsyncStorage.multiGet(keyArray).then((keyValArray) => {
+  //         let myStorage: any = {};
+  //         for (let keyVal of keyValArray) {
+  //           myStorage[keyVal[0]] = keyVal[1];
+  //         }
+  //         const recievedData = JSON.parse(myStorage);
+  //         console.log('CURRENT STORAGE: ', myStorage);
+  //         return recievedData != null ? setStoredData({recievedData}) : null;
+  //       });
+  //     });
+  //   } catch (e) {
+  //     console.log(e);
+  //   }
+  // };
+
+  async function logCurrentStorage() {
+    AsyncStorage.getAllKeys().then((keyArray) => {
+      AsyncStorage.multiGet(keyArray).then((keyValArray) => {
+        let myStorage: any = {};
+        for (let keyVal of keyValArray) {
+          myStorage[keyVal[0]] = keyVal[1];
+        }
+        // const recievedData = JSON.parse(myStorage);
+        console.log('CURRENT STORAGE: ', myStorage);
+      });
+    });
+  }
+
+  // const renderItem = ({item}) => <Item title={item} />;
 
   return (
     <SafeAreaView style={styles.container}>
-      <FlatList
-        data={storeData}
+      {/* <FlatList
+        data={storedData}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
-      />
+      /> */}
     </SafeAreaView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -60,13 +80,11 @@ const styles = StyleSheet.create({
   },
   item: {
     backgroundColor: '#f9c2ff',
-    padding: 20,
-    marginVertical: 8,
+    padding: 12,
+    marginVertical: 4,
     marginHorizontal: 16,
   },
   title: {
-    fontSize: 32,
+    fontSize: 20,
   },
 });
-
-export default HistoryScreen;

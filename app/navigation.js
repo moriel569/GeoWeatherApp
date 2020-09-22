@@ -29,7 +29,15 @@ export default function Navigation() {
           inactiveTintColor: 'gray',
         }}>
         <Tab.Screen name="Home">{() => <HomeScreen />}</Tab.Screen>
-        <Tab.Screen name="History" component={HistoryScreen} />
+        <Tab.Screen
+          name="History"
+          listeners={{
+            tabPress: (e) => {
+              console.log('History pressed');
+            },
+          }}>
+          {() => <HistoryScreen />}
+        </Tab.Screen>
       </Tab.Navigator>
     </NavigationContainer>
   );
