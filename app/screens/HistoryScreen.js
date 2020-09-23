@@ -6,70 +6,65 @@ import {
   StyleSheet,
   Text,
   StatusBar,
+  ActivityIndicator,
+  Dimensions,
 } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 
 export default function HistoryScreen() {
+  const {height, width} = Dimensions.get('window');
   const [storedData, setStoredData] = useState([]);
 
   useEffect(() => {
-    logCurrentStorage();
+    // AsyncStorage.getAllKeys().then((keys) =>
+    //   AsyncStorage.multiGet(keys).then((data) =>
+    //     data.forEach((data) => {
+    //       setStoredData(data);
+    //       return console.log(storedData);
+    //     }),
+    //   ),
+    // );
+
+    const fetchAllItems = async () => {
+      try {
+        const keys = await AsyncStorage.getAllKeys();
+        const items = await AsyncStorage.multiGet(keys);
+
+        setStoredData(items);
+      } catch (error) {
+        console.log(error, 'problemo');
+      }
+    };
+    fetchAllItems();
   }, []);
 
-  // const getWeather = async () => {
-  //   try {
-  //     const getWeatherData = await AsyncStorage.getItem('@storage_Key');
-  //     getWeatherData === undefined
-  //       ? console.log('No Cached Data')
-  //       : console.log('Get Data from Cache');
-  //     const recievedData = JSON.parse(getWeatherData);
-  //     return recievedData != null ? setStoredData([{recievedData}]) : null;
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
-  // };
+  const renderItem = (item) => {
+    console.log(item);
+    const date = new Date(Number(item.item[0]) * 1000);
+    return <Item style={styles.text} title={item.item[0]} />;
+  };
 
-  // const getWeather = async () => {
-  //   try {
-  //     AsyncStorage.getAllKeys().then((keyArray) => {
-  //       AsyncStorage.multiGet(keyArray).then((keyValArray) => {
-  //         let myStorage: any = {};
-  //         for (let keyVal of keyValArray) {
-  //           myStorage[keyVal[0]] = keyVal[1];
-  //         }
-  //         const recievedData = JSON.parse(myStorage);
-  //         console.log('CURRENT STORAGE: ', myStorage);
-  //         return recievedData != null ? setStoredData({recievedData}) : null;
-  //       });
-  //     });
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
-  // };
+  const Item = ({title}) => (
+    <View style={styles.item}>
+      <Text style={styles.title}>{title}</Text>
+    </View>
+  );
+  console.log(storedData);
 
-  async function logCurrentStorage() {
-    AsyncStorage.getAllKeys().then((keyArray) => {
-      AsyncStorage.multiGet(keyArray).then((keyValArray) => {
-        let myStorage: any = {};
-        for (let keyVal of keyValArray) {
-          myStorage[keyVal[0]] = keyVal[1];
-        }
-        // const recievedData = JSON.parse(myStorage);
-        console.log('CURRENT STORAGE: ', myStorage);
-      });
-    });
-  }
-
-  // const renderItem = ({item}) => <Item title={item} />;
-
-  return (
+  return storedData ? (
     <SafeAreaView style={styles.container}>
-      {/* <FlatList
+      <Text>Location History</Text>
+      <FlatList
         data={storedData}
         renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-      /> */}
+        keyExtractor={(item, index) => index}
+      />
     </SafeAreaView>
+  ) : (
+    <View
+      style={{justifyContent: 'center', alignItems: 'center', height, width}}>
+      <ActivityIndicator size="large" color="#7453ec" />
+    </View>
   );
 }
 
@@ -79,12 +74,14 @@ const styles = StyleSheet.create({
     marginTop: StatusBar.currentHeight || 0,
   },
   item: {
-    backgroundColor: '#f9c2ff',
-    padding: 12,
-    marginVertical: 4,
+    backgroundColor: '#7453ec',
+    padding: 20,
+    marginVertical: 8,
     marginHorizontal: 16,
+    borderRadius: 13,
   },
   title: {
     fontSize: 20,
+    color: '#fff',
   },
 });

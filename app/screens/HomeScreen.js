@@ -22,16 +22,16 @@ export default function HomeScreen() {
     // logCurrentStorage();
   }, []);
 
-  function geoService() {
-    getLocationPermission()
+  async function geoService() {
+    useGetLocationPermission()
       .then(() => {
-        return getCurrentPosition();
+        return useGetCurrentPosition();
       })
       .then((data) => {
         let {
           coords: {latitude, longitude},
         } = data;
-        return getWeatherByCoords(latitude, longitude);
+        return useGetWeatherByCoords(latitude, longitude);
       })
       .then((info) => {
         setGeoData({
@@ -45,12 +45,12 @@ export default function HomeScreen() {
           temperature: info.main.temp,
           loaded: true,
         });
-        return storeWeather(geoData);
+        return useStoreWeather(geoData);
       })
       .catch((err) => console.log(err));
   }
 
-  function getLocationPermission() {
+  function useGetLocationPermission() {
     return new Promise((resolve, reject) => {
       check(PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION)
         .then((result) => {
@@ -79,15 +79,15 @@ export default function HomeScreen() {
     });
   }
 
-  function getCurrentPosition() {
+  function useGetCurrentPosition() {
     return new Promise((resolve, reject) => {
       Geolocation.getCurrentPosition((data) => resolve(data));
     });
   }
 
-  function getWeatherByCoords(lat, lon) {
+  async function useGetWeatherByCoords(lat, lon) {
     const APPID = '7461936da212f6a73296e33719a25f45';
-    return fetch(
+    const response = await fetch(
       `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${APPID}`,
       {
         method: 'GET',
@@ -95,23 +95,20 @@ export default function HomeScreen() {
           'Content-Type': 'application/json',
         },
       },
-    )
-      .then((response) => response.json())
-      .then((weatherInfo) => {
-        return weatherInfo;
-      });
+    );
+    const weatherInfo = await response.json();
+    return weatherInfo;
   }
 
-  const storeWeather = (weatherData) => {
-    console.log(geoData);
+  const useStoreWeather = async (weatherData) => {
     try {
+      console.log(weatherData);
       const jsonWeatherData = JSON.stringify(weatherData);
-      const storageKey = JSON.stringify(weatherData.date);
+      const storageKey = toString(weatherData.date);
 
-      AsyncStorage.setItem(storageKey, jsonWeatherData);
       console.log('Data saved to storage');
 
-      return jsonWeatherData;
+      return AsyncStorage.setItem(storageKey, jsonWeatherData);
     } catch (e) {
       console.log(e);
     }
