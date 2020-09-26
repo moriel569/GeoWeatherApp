@@ -14,27 +14,30 @@ import Geolocation from 'react-native-geolocation-service';
 import AsyncStorage from '@react-native-community/async-storage';
 
 export default function HomeScreen() {
-  const [geoData, setGeoData] = useState([]);
+  const [geoData, setGeoData] = useState({});
   const {height, width} = Dimensions.get('window');
-  useEffect(() => {
-    geoService();
+  useGetAndStoreCurrentLocation();
 
-    // logCurrentStorage();
-  }, []);
+  function useGetAndStoreCurrentLocation() {
+    return useEffect(() => {
+      getAndStoreCurrentLocation();
+    }, []);
+  }
 
-  async function geoService() {
-    useGetLocationPermission()
+  async function getAndStoreCurrentLocation() {
+    getLocationPermission()
       .then(() => {
-        return useGetCurrentPosition();
+        return getCurrentPosition();
       })
       .then((data) => {
         let {
           coords: {latitude, longitude},
         } = data;
-        return useGetWeatherByCoords(latitude, longitude);
+        return getWeatherDataByLatLng(latitude, longitude);
       })
       .then((info) => {
-        setGeoData({
+
+        const geoDataToStore = {
           longitude: info.coord.lon,
           latitude: info.coord.lat,
           date: info.dt,
@@ -44,13 +47,15 @@ export default function HomeScreen() {
           icon: info.weather[0].icon,
           temperature: info.main.temp,
           loaded: true,
-        });
-        return useStoreWeather(geoData);
+        }
+
+        setGeoData(geoDataToStore);
+        return storeWeatherData(geoDataToStore);
       })
       .catch((err) => console.log(err));
   }
 
-  function useGetLocationPermission() {
+  function getLocationPermission() {
     return new Promise((resolve, reject) => {
       check(PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION)
         .then((result) => {
@@ -79,13 +84,13 @@ export default function HomeScreen() {
     });
   }
 
-  function useGetCurrentPosition() {
+  function getCurrentPosition() {
     return new Promise((resolve, reject) => {
       Geolocation.getCurrentPosition((data) => resolve(data));
     });
   }
 
-  async function useGetWeatherByCoords(lat, lon) {
+  async function getWeatherDataByLatLng(lat, lon) {
     const APPID = '7461936da212f6a73296e33719a25f45';
     const response = await fetch(
       `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${APPID}`,
@@ -100,7 +105,7 @@ export default function HomeScreen() {
     return weatherInfo;
   }
 
-  const useStoreWeather = async (weatherData) => {
+  const storeWeatherData = async (weatherData) => {
     try {
       console.log(weatherData);
       const jsonWeatherData = JSON.stringify(weatherData);
