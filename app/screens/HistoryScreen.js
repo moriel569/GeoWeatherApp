@@ -30,7 +30,23 @@ export default function HistoryScreen() {
         const keys = await AsyncStorage.getAllKeys();
         const items = await AsyncStorage.multiGet(keys);
 
-        setStoredData(items);
+        const putDataToState = () =>
+          items.forEach((item) =>
+            setStoredData([...storedData, JSON.parse(item[1])]),
+          );
+        putDataToState();
+
+        //  console.log(storedData);
+        // setStoredData(jsonToObject);
+        // return console.log(storedData);
+        // AsyncStorage.getAllKeys((err, keys) => {
+        //   AsyncStorage.multiGet(keys, (error, stores) => {
+        //     stores.map((result, i, store) => {
+        //       console.log({[store[i][0]]: store[i][1]});
+        //       return true;
+        //     });
+        //   });
+        // });
       } catch (error) {
         console.log(error, 'problemo');
       }
@@ -40,24 +56,36 @@ export default function HistoryScreen() {
 
   const renderItem = (item) => {
     console.log(item);
-    const date = new Date(Number(item.item[0]) * 1000);
-    return <Item style={styles.text} title={item.item[0]} />;
+    const date = new Date(Number(item.item.date) * 1000).toLocaleString(
+      'ru-RU',
+    );
+    return (
+      <Item
+        style={styles.text}
+        title={date}
+        lat={item.item.latitude}
+        lng={item.item.longitude}
+        city={item.item.city}
+      />
+    );
   };
 
-  const Item = ({title}) => (
+  const Item = ({title, lat, lng, city}) => (
     <View style={styles.item}>
       <Text style={styles.title}>{title}</Text>
+      <Text style={styles.coords}>
+        Lat: {lat} Lng: {lng} {city}
+      </Text>
     </View>
   );
-  console.log(storedData);
 
   return storedData ? (
     <SafeAreaView style={styles.container}>
-      <Text>Location History</Text>
+      <Text style={styles.historyTitle}>Location History</Text>
       <FlatList
         data={storedData}
         renderItem={renderItem}
-        keyExtractor={(item, index) => index}
+        keyExtractor={(item, index) => index.toString()}
       />
     </SafeAreaView>
   ) : (
@@ -81,7 +109,17 @@ const styles = StyleSheet.create({
     borderRadius: 13,
   },
   title: {
-    fontSize: 20,
+    fontSize: 17,
     color: '#fff',
+  },
+  coords: {
+    fontSize: 14,
+    color: '#fff',
+  },
+  historyTitle: {
+    fontSize: 23,
+    fontWeight: '700',
+    color: '#7453ec',
+    paddingHorizontal: 20,
   },
 });

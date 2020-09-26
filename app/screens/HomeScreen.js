@@ -24,7 +24,7 @@ export default function HomeScreen() {
     }, []);
   }
 
-  async function getAndStoreCurrentLocation() {
+  function getAndStoreCurrentLocation() {
     getLocationPermission()
       .then(() => {
         return getCurrentPosition();
@@ -36,7 +36,6 @@ export default function HomeScreen() {
         return getWeatherDataByLatLng(latitude, longitude);
       })
       .then((info) => {
-
         const geoDataToStore = {
           longitude: info.coord.lon,
           latitude: info.coord.lat,
@@ -47,7 +46,7 @@ export default function HomeScreen() {
           icon: info.weather[0].icon,
           temperature: info.main.temp,
           loaded: true,
-        }
+        };
 
         setGeoData(geoDataToStore);
         return storeWeatherData(geoDataToStore);
@@ -107,9 +106,9 @@ export default function HomeScreen() {
 
   const storeWeatherData = async (weatherData) => {
     try {
-      console.log(weatherData);
+      // console.log(weatherData);
       const jsonWeatherData = JSON.stringify(weatherData);
-      const storageKey = toString(weatherData.date);
+      const storageKey = JSON.stringify(weatherData.date);
 
       console.log('Data saved to storage');
 
