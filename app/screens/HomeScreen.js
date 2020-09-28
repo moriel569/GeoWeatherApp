@@ -109,7 +109,16 @@ export default function HomeScreen() {
       // console.log(weatherData);
       const jsonWeatherData = JSON.stringify(weatherData);
       const storageKey = JSON.stringify(weatherData.date);
+      // AsyncStorage.getAllKeys().then((keyArray) => {
+      //   AsyncStorage.multiGet(keyArray).then((keyValArray) => {
+      //     let myStorage: any = {};
+      //     for (let keyVal of keyValArray) {
+      //       myStorage[keyVal[0]] = JSON.parse(keyVal[1]);
+      //     }
 
+      //     console.log('CURRENT STORAGE: ', myStorage);
+      //   });
+      // });
       console.log('Data saved to storage');
 
       return AsyncStorage.setItem(storageKey, jsonWeatherData);

@@ -8,6 +8,7 @@ import {
   StatusBar,
   ActivityIndicator,
   Dimensions,
+  TouchableOpacity,
 } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 
@@ -16,37 +17,16 @@ export default function HistoryScreen() {
   const [storedData, setStoredData] = useState([]);
 
   useEffect(() => {
-    // AsyncStorage.getAllKeys().then((keys) =>
-    //   AsyncStorage.multiGet(keys).then((data) =>
-    //     data.forEach((data) => {
-    //       setStoredData(data);
-    //       return console.log(storedData);
-    //     }),
-    //   ),
-    // );
-
     const fetchAllItems = async () => {
       try {
         const keys = await AsyncStorage.getAllKeys();
         const items = await AsyncStorage.multiGet(keys);
+        const arrayOfData = [];
+        const putDataToArray = () =>
+          items.forEach((item) => arrayOfData.push([JSON.parse(item[1])]));
+        putDataToArray();
 
-        const putDataToState = () =>
-          items.forEach((item) =>
-            setStoredData([...storedData, JSON.parse(item[1])]),
-          );
-        putDataToState();
-
-        //  console.log(storedData);
-        // setStoredData(jsonToObject);
-        // return console.log(storedData);
-        // AsyncStorage.getAllKeys((err, keys) => {
-        //   AsyncStorage.multiGet(keys, (error, stores) => {
-        //     stores.map((result, i, store) => {
-        //       console.log({[store[i][0]]: store[i][1]});
-        //       return true;
-        //     });
-        //   });
-        // });
+        return setStoredData(arrayOfData);
       } catch (error) {
         console.log(error, 'problemo');
       }
@@ -55,28 +35,29 @@ export default function HistoryScreen() {
   }, []);
 
   const renderItem = (item) => {
-    console.log(item);
-    const date = new Date(Number(item.item.date) * 1000).toLocaleString(
+    const date = new Date(Number(item.item[0].date) * 1000).toLocaleString(
       'ru-RU',
     );
     return (
       <Item
         style={styles.text}
         title={date}
-        lat={item.item.latitude}
-        lng={item.item.longitude}
-        city={item.item.city}
+        lat={item.item[0].latitude}
+        lng={item.item[0].longitude}
+        city={item.item[0].city}
       />
     );
   };
 
   const Item = ({title, lat, lng, city}) => (
-    <View style={styles.item}>
-      <Text style={styles.title}>{title}</Text>
-      <Text style={styles.coords}>
-        Lat: {lat} Lng: {lng} {city}
-      </Text>
-    </View>
+    <TouchableOpacity onPress={() => console.log('click')}>
+      <View style={styles.item}>
+        <Text style={styles.title}>{title}</Text>
+        <Text style={styles.coords}>
+          Lat: {lat} Lng: {lng} {city}
+        </Text>
+      </View>
+    </TouchableOpacity>
   );
 
   return storedData ? (
