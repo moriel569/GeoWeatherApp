@@ -8,19 +8,29 @@ import {
   ScrollView,
   Dimensions,
 } from 'react-native';
+import formatRelative from 'date-fns/formatRelative';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {check, PERMISSIONS, RESULTS} from 'react-native-permissions';
 import Geolocation from 'react-native-geolocation-service';
 import AsyncStorage from '@react-native-community/async-storage';
 
-export default function HomeScreen() {
+const kelvinToCelsius = (temp) => (temp - 273.15).toFixed(1);
+
+export default function HomeScreen({route}) {
   const [geoData, setGeoData] = useState({});
+  const [isLoaded, setIsLoaded] = useState(false);
+  const geoDataToRender = route?.params?.geoData
+    ? route.params.geoData
+    : geoData;
+
   const {height, width} = Dimensions.get('window');
   useGetAndStoreCurrentLocation();
 
   function useGetAndStoreCurrentLocation() {
     return useEffect(() => {
-      getAndStoreCurrentLocation();
+      if (!route?.params?.geoData) {
+        getAndStoreCurrentLocation();
+      }
     }, []);
   }
 
@@ -45,10 +55,10 @@ export default function HomeScreen() {
           weather: info.weather[0].description,
           icon: info.weather[0].icon,
           temperature: info.main.temp,
-          loaded: true,
         };
 
         setGeoData(geoDataToStore);
+        setIsLoaded(true);
         return storeWeatherData(geoDataToStore);
       })
       .catch((err) => console.log(err));
@@ -106,19 +116,9 @@ export default function HomeScreen() {
 
   const storeWeatherData = async (weatherData) => {
     try {
-      // console.log(weatherData);
       const jsonWeatherData = JSON.stringify(weatherData);
       const storageKey = JSON.stringify(weatherData.date);
-      // AsyncStorage.getAllKeys().then((keyArray) => {
-      //   AsyncStorage.multiGet(keyArray).then((keyValArray) => {
-      //     let myStorage: any = {};
-      //     for (let keyVal of keyValArray) {
-      //       myStorage[keyVal[0]] = JSON.parse(keyVal[1]);
-      //     }
 
-      //     console.log('CURRENT STORAGE: ', myStorage);
-      //   });
-      // });
       console.log('Data saved to storage');
 
       return AsyncStorage.setItem(storageKey, jsonWeatherData);
@@ -127,17 +127,21 @@ export default function HomeScreen() {
     }
   };
 
-  return geoData.loaded === true ? (
+  return isLoaded ? (
     <ScrollView style={{flex: 1, backgroundColor: '#7453ec'}}>
       <View
         style={{
           marginVertical: 10,
           marginHorizontal: 5,
-          borderColor: 'green',
           alignItems: 'center',
         }}>
-        <Text style={{fontSize: 30, color: '#fff', fontWeight: '700'}}>
-          Weather Today
+        <Text
+          style={{
+            fontSize: 30,
+            color: '#fff',
+            fontWeight: '700',
+          }}>
+          Weather {formatRelative(geoDataToRender.date * 1000, new Date())}
         </Text>
       </View>
       <View
@@ -147,10 +151,10 @@ export default function HomeScreen() {
           alignItems: 'center',
         }}>
         <Icon name="location" color={'#cbec53'} size={75} />
-        <Text style={styles.text}>Latitude: {geoData.latitude}</Text>
-        <Text style={styles.text}>Longitude: {geoData.longitude}</Text>
+        <Text style={styles.text}>Latitude: {geoDataToRender.latitude}</Text>
+        <Text style={styles.text}>Longitude: {geoDataToRender.longitude}</Text>
         <Text style={styles.text}>
-          City: {geoData.country}, {geoData.city}
+          City: {geoDataToRender.country}, {geoDataToRender.city}
         </Text>
       </View>
 
@@ -158,12 +162,12 @@ export default function HomeScreen() {
         <Image
           style={{width: 120, height: 120}}
           source={{
-            uri: `http://openweathermap.org/img/wn/${geoData.icon}@4x.png`,
+            uri: `http://openweathermap.org/img/wn/${geoDataToRender.icon}@4x.png`,
           }}
         />
-        <Text style={styles.text}>{geoData.weather}</Text>
+        <Text style={styles.text}>{geoDataToRender.weather}</Text>
         <Text style={styles.text}>
-          {(geoData.temperature - 273.15).toFixed(1)} ℃
+          {kelvinToCelsius(geoDataToRender.temperature)} ℃
         </Text>
       </View>
     </ScrollView>

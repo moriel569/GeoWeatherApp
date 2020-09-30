@@ -10,23 +10,26 @@ import {
   Dimensions,
   TouchableOpacity,
 } from 'react-native';
+import {TabActions} from '@react-navigation/native';
 import AsyncStorage from '@react-native-community/async-storage';
 
-export default function HistoryScreen() {
+export default function HistoryScreen({navigation}) {
   const {height, width} = Dimensions.get('window');
   const [storedData, setStoredData] = useState([]);
+
+  // console.log(navigation);
 
   useEffect(() => {
     const fetchAllItems = async () => {
       try {
         const keys = await AsyncStorage.getAllKeys();
-        const items = await AsyncStorage.multiGet(keys);
-        const arrayOfData = [];
-        const putDataToArray = () =>
-          items.forEach((item) => arrayOfData.push([JSON.parse(item[1])]));
-        putDataToArray();
+        const geoDataItems = await AsyncStorage.multiGet(keys);
+        // console.log(geoDataItems);
+        const itemsToRender = geoDataItems
+          .map((geoDataItem) => JSON.parse(geoDataItem[1]))
+          .sort((a, b) => b.date - a.date);
 
-        return setStoredData(arrayOfData);
+        return setStoredData(itemsToRender);
       } catch (error) {
         console.log(error, 'problemo');
       }
@@ -34,31 +37,33 @@ export default function HistoryScreen() {
     fetchAllItems();
   }, []);
 
-  const renderItem = (item) => {
-    const date = new Date(Number(item.item[0].date) * 1000).toLocaleString(
-      'ru-RU',
-    );
+  const renderItem = ({item}) => {
+    const date = new Date(Number(item.date) * 1000).toLocaleString('ru-RU');
+    const jumpToAction = TabActions.jumpTo('Home', {geoData: item});
     return (
       <Item
+        onPress={() => navigation.dispatch(jumpToAction)}
         style={styles.text}
         title={date}
-        lat={item.item[0].latitude}
-        lng={item.item[0].longitude}
-        city={item.item[0].city}
+        lat={item.latitude}
+        lng={item.longitude}
+        city={item.city}
       />
     );
   };
 
-  const Item = ({title, lat, lng, city}) => (
-    <TouchableOpacity onPress={() => console.log('click')}>
-      <View style={styles.item}>
-        <Text style={styles.title}>{title}</Text>
-        <Text style={styles.coords}>
-          Lat: {lat} Lng: {lng} {city}
-        </Text>
-      </View>
-    </TouchableOpacity>
-  );
+  const Item = ({title, lat, lng, city, onPress}) => {
+    return (
+      <TouchableOpacity onPress={onPress}>
+        <View style={styles.item}>
+          <Text style={styles.title}>{title}</Text>
+          <Text style={styles.coords}>
+            Lat: {lat} Lng: {lng} {city}
+          </Text>
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   return storedData ? (
     <SafeAreaView style={styles.container}>
