@@ -7,6 +7,7 @@ import {
   Image,
   ScrollView,
   Dimensions,
+  PermissionsAndroid,
 } from 'react-native';
 import formatRelative from 'date-fns/formatRelative';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -140,8 +141,10 @@ export default function HomeScreen({route}) {
             fontSize: 30,
             color: '#fff',
             fontWeight: '700',
+            textAlign: 'center',
           }}>
-          Weather {formatRelative(geoDataToRender.date * 1000, new Date())}
+          Weather {'\n'}
+          {formatRelative(geoDataToRender.date * 1000, new Date())}
         </Text>
       </View>
       <View
