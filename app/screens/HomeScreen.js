@@ -7,13 +7,12 @@ import {
   Image,
   ScrollView,
   Dimensions,
-  PermissionsAndroid,
 } from 'react-native';
 import formatRelative from 'date-fns/formatRelative';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {check, PERMISSIONS, RESULTS} from 'react-native-permissions';
 import Geolocation from 'react-native-geolocation-service';
-import AsyncStorage from '@react-native-community/async-storage';
+import {storeWeatherData} from '../storage/set-async-storage';
 
 const kelvinToCelsius = (temp) => (temp - 273.15).toFixed(1);
 
@@ -114,19 +113,6 @@ export default function HomeScreen({route}) {
     const weatherInfo = await response.json();
     return weatherInfo;
   }
-
-  const storeWeatherData = async (weatherData) => {
-    try {
-      const jsonWeatherData = JSON.stringify(weatherData);
-      const storageKey = JSON.stringify(weatherData.date);
-
-      console.log('Data saved to storage');
-
-      return AsyncStorage.setItem(storageKey, jsonWeatherData);
-    } catch (e) {
-      console.log(e);
-    }
-  };
 
   return isLoaded ? (
     <ScrollView style={{flex: 1, backgroundColor: '#7453ec'}}>

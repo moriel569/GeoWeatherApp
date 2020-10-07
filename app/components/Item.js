@@ -1,7 +1,7 @@
 import React from 'react';
 import {TouchableOpacity, View, Text, StyleSheet} from 'react-native';
 
-export default Item = ({title, lat, lng, city, onPress}) => {
+export const Item = ({title, lat, lng, city, onPress}) => {
   return (
     <TouchableOpacity onPress={onPress}>
       <View style={styles.item}>

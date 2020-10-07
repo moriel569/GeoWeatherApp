@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import {TabActions} from '@react-navigation/native';
 import AsyncStorage from '@react-native-community/async-storage';
+// import Item from '../components/Item'
 
 export default function HistoryScreen({navigation}) {
   const {height, width} = Dimensions.get('window');
@@ -40,6 +41,7 @@ export default function HistoryScreen({navigation}) {
   const renderItem = ({item}) => {
     const date = new Date(Number(item.date) * 1000).toLocaleString('ru-RU');
     const jumpToAction = TabActions.jumpTo('Home', {geoData: item});
+
     return (
       <Item
         onPress={() => navigation.dispatch(jumpToAction)}
