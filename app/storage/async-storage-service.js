@@ -12,3 +12,17 @@ export const storeWeatherData = async (weatherData) => {
     console.log(e);
   }
 };
+
+export const fetchAllStoredItems = async () => {
+  try {
+    const keys = await AsyncStorage.getAllKeys();
+    const geoDataItems = await AsyncStorage.multiGet(keys);
+    const itemsToRender = geoDataItems
+      .map((geoDataItem) => JSON.parse(geoDataItem[1]))
+      .sort((a, b) => b.date - a.date);
+
+    return itemsToRender;
+  } catch (error) {
+    console.log(error, 'Error');
+  }
+};

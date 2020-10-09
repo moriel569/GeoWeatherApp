@@ -1,7 +1,7 @@
 import React from 'react';
 import {TouchableOpacity, View, Text, StyleSheet} from 'react-native';
 
-export const Item = ({title, lat, lng, city, onPress}) => {
+const Item = ({title, lat, lng, city, onPress}) => {
   return (
     <TouchableOpacity onPress={onPress}>
       <View style={styles.item}>
@@ -13,6 +13,8 @@ export const Item = ({title, lat, lng, city, onPress}) => {
     </TouchableOpacity>
   );
 };
+
+export default Item;
 
 const styles = StyleSheet.create({
   item: {
