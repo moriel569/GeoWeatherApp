@@ -10,7 +10,6 @@ import {
 } from 'react-native';
 import formatRelative from 'date-fns/formatRelative';
 import Icon from 'react-native-vector-icons/Ionicons';
-import {NeuView} from 'react-native-neu-element';
 // FUNCTIONS
 import {storeWeatherData} from '../storage/async-storage-service';
 import {getLocationPermission} from '../services/geoService';

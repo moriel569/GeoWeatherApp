@@ -26,3 +26,12 @@ export const fetchAllStoredItems = async () => {
     console.log(error, 'Error');
   }
 };
+
+export const removeItemValue = async (key) => {
+  try {
+    await AsyncStorage.removeItem(key);
+    return true;
+  } catch (exception) {
+    return false;
+  }
+};

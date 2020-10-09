@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import {TabActions} from '@react-navigation/native';
 import {fetchAllStoredItems} from '../storage/async-storage-service';
+import {removeItemValue} from '../storage/async-storage-service';
 
 import Item from '../components/Item';
 
@@ -37,18 +38,26 @@ export default function HistoryScreen({navigation}) {
     }
   }
 
-  const renderItem = ({item}) => {
+  const renderItem = ({item, index}) => {
     const date = new Date(Number(item.date) * 1000).toLocaleString('ru-RU');
     const jumpToAction = TabActions.jumpTo('Home', {geoData: item});
 
     return (
       <Item
         onPress={() => navigation.dispatch(jumpToAction)}
+        removeItem={() => {
+          let removeItem = storedData.filter(
+            (_item, _index) => _index !== index,
+          );
+          setStoredData(removeItem);
+          removeItemValue(item.date.toString());
+        }}
         style={styles.text}
         title={date}
         lat={item.latitude}
         lng={item.longitude}
         city={item.city}
+        index={index}
       />
     );
   };
