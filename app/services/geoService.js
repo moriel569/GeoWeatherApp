@@ -38,8 +38,9 @@ export function getCurrentPosition() {
   });
 }
 
-export function getWeatherByCoords(lat, lon) {
-  return fetch(
+export async function getWeatherDataByLatLng(lat, lon) {
+  const APPID = '7461936da212f6a73296e33719a25f45';
+  const response = await fetch(
     `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${APPID}`,
     {
       method: 'GET',
@@ -47,9 +48,7 @@ export function getWeatherByCoords(lat, lon) {
         'Content-Type': 'application/json',
       },
     },
-  )
-    .then((response) => response.json())
-    .then((weatherInfo) => {
-      return weatherInfo;
-    });
+  );
+  const weatherInfo = await response.json();
+  return weatherInfo;
 }

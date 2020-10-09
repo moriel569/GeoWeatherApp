@@ -8,60 +8,57 @@ import {
   StatusBar,
   ActivityIndicator,
   Dimensions,
-  TouchableOpacity,
 } from 'react-native';
 import {TabActions} from '@react-navigation/native';
-import AsyncStorage from '@react-native-community/async-storage';
+import {fetchAllStoredItems} from '../storage/async-storage-service';
+import {removeItemValue} from '../storage/async-storage-service';
+
+import Item from '../components/Item';
 
 export default function HistoryScreen({navigation}) {
   const {height, width} = Dimensions.get('window');
   const [storedData, setStoredData] = useState([]);
+  const [error, setError] = useState(null);
+  setAndExtractStoredData();
 
-  // console.log(navigation);
+  function setAndExtractStoredData() {
+    return useEffect(() => {
+      fetchAndSetItems();
+    }, []);
+  }
 
-  useEffect(() => {
-    const fetchAllItems = async () => {
-      try {
-        const keys = await AsyncStorage.getAllKeys();
-        const geoDataItems = await AsyncStorage.multiGet(keys);
-        // console.log(geoDataItems);
-        const itemsToRender = geoDataItems
-          .map((geoDataItem) => JSON.parse(geoDataItem[1]))
-          .sort((a, b) => b.date - a.date);
+  async function fetchAndSetItems() {
+    try {
+      const getStoredInfo = await fetchAllStoredItems().then(
+        (extractedData) => extractedData,
+      );
+      setStoredData(getStoredInfo);
+    } catch (e) {
+      setError(e);
+    }
+  }
 
-        return setStoredData(itemsToRender);
-      } catch (error) {
-        console.log(error, 'problemo');
-      }
-    };
-    fetchAllItems();
-  }, []);
-
-  const renderItem = ({item}) => {
+  const renderItem = ({item, index}) => {
     const date = new Date(Number(item.date) * 1000).toLocaleString('ru-RU');
     const jumpToAction = TabActions.jumpTo('Home', {geoData: item});
+
     return (
       <Item
         onPress={() => navigation.dispatch(jumpToAction)}
+        removeItem={() => {
+          let removeItem = storedData.filter(
+            (_item, _index) => _index !== index,
+          );
+          setStoredData(removeItem);
+          removeItemValue(item.date.toString());
+        }}
         style={styles.text}
         title={date}
         lat={item.latitude}
         lng={item.longitude}
         city={item.city}
+        index={index}
       />
-    );
-  };
-
-  const Item = ({title, lat, lng, city, onPress}) => {
-    return (
-      <TouchableOpacity onPress={onPress}>
-        <View style={styles.item}>
-          <Text style={styles.title}>{title}</Text>
-          <Text style={styles.coords}>
-            Lat: {lat} Lng: {lng} {city}
-          </Text>
-        </View>
-      </TouchableOpacity>
     );
   };
 

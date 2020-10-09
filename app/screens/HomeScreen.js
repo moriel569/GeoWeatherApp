@@ -10,9 +10,11 @@ import {
 } from 'react-native';
 import formatRelative from 'date-fns/formatRelative';
 import Icon from 'react-native-vector-icons/Ionicons';
-import {check, PERMISSIONS, RESULTS} from 'react-native-permissions';
-import Geolocation from 'react-native-geolocation-service';
-import AsyncStorage from '@react-native-community/async-storage';
+// FUNCTIONS
+import {storeWeatherData} from '../storage/async-storage-service';
+import {getLocationPermission} from '../services/geoService';
+import {getCurrentPosition} from '../services/geoService';
+import {getWeatherDataByLatLng} from '../services/geoService';
 
 const kelvinToCelsius = (temp) => (temp - 273.15).toFixed(1);
 
@@ -24,6 +26,7 @@ export default function HomeScreen({route}) {
     : geoData;
 
   const {height, width} = Dimensions.get('window');
+
   useGetAndStoreCurrentLocation();
 
   function useGetAndStoreCurrentLocation() {
@@ -64,69 +67,6 @@ export default function HomeScreen({route}) {
       .catch((err) => console.log(err));
   }
 
-  function getLocationPermission() {
-    return new Promise((resolve, reject) => {
-      check(PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION)
-        .then((result) => {
-          switch (result) {
-            case RESULTS.GRANTED:
-              resolve('The permission is granted');
-              break;
-            case RESULTS.UNAVAILABLE:
-              reject(
-                'This feature is not available (on this device / in this context)',
-              );
-              break;
-            case RESULTS.DENIED:
-              reject(
-                'The permission has not been requested / is denied but requestable',
-              );
-              break;
-            case RESULTS.BLOCKED:
-              reject('The permission is denied and not requestable anymore');
-              break;
-          }
-        })
-        .catch((error) => {
-          reject(error);
-        });
-    });
-  }
-
-  function getCurrentPosition() {
-    return new Promise((resolve, reject) => {
-      Geolocation.getCurrentPosition((data) => resolve(data));
-    });
-  }
-
-  async function getWeatherDataByLatLng(lat, lon) {
-    const APPID = '7461936da212f6a73296e33719a25f45';
-    const response = await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${APPID}`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      },
-    );
-    const weatherInfo = await response.json();
-    return weatherInfo;
-  }
-
-  const storeWeatherData = async (weatherData) => {
-    try {
-      const jsonWeatherData = JSON.stringify(weatherData);
-      const storageKey = JSON.stringify(weatherData.date);
-
-      console.log('Data saved to storage');
-
-      return AsyncStorage.setItem(storageKey, jsonWeatherData);
-    } catch (e) {
-      console.log(e);
-    }
-  };
-
   return isLoaded ? (
     <ScrollView style={{flex: 1, backgroundColor: '#7453ec'}}>
       <View
@@ -140,8 +80,10 @@ export default function HomeScreen({route}) {
             fontSize: 30,
             color: '#fff',
             fontWeight: '700',
+            textAlign: 'center',
           }}>
-          Weather {formatRelative(geoDataToRender.date * 1000, new Date())}
+          Weather {'\n'}
+          {formatRelative(geoDataToRender.date * 1000, new Date())}
         </Text>
       </View>
       <View
