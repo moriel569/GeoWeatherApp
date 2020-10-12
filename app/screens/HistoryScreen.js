@@ -9,16 +9,18 @@ import {
   ActivityIndicator,
   Dimensions,
 } from 'react-native';
-import {TabActions} from '@react-navigation/native';
-import {fetchAllStoredItems} from '../storage/async-storage-service';
-import {removeItemValue} from '../storage/async-storage-service';
 
-import Item from '../components/Item';
+import {TabActions} from '@react-navigation/native';
+import {fetchAllStoredItems} from '../storage/asyncStorageService';
+import {removeItemValue} from '../storage/asyncStorageService';
+
+import Item from './WeatherHistoryItem';
 
 export default function HistoryScreen({navigation}) {
   const {height, width} = Dimensions.get('window');
   const [storedData, setStoredData] = useState([]);
   const [error, setError] = useState(null);
+
   setAndExtractStoredData();
 
   function setAndExtractStoredData() {
