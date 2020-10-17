@@ -1,4 +1,4 @@
-import {check, PERMISSIONS, request, RESULTS} from 'react-native-permissions';
+import {PERMISSIONS, request, RESULTS} from 'react-native-permissions';
 import Geolocation from 'react-native-geolocation-service';
 
 export function getLocationPermission() {
