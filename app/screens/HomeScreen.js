@@ -21,9 +21,8 @@ import {kelvinToCelsius} from '../utils/temperatureUtils';
 import {useCurrentGeoPosition} from '../hooks/useGeoData';
 import {createWeatherIconUri} from '../services/geoService';
 import {ThemeContext} from '../theme';
-import {useLocation} from '../hooks';
 
-export default function HomeScreen({route}) {
+export default function HomeScreen({route, navigation}) {
   const historyData = route?.params?.geoData;
   const {geoData, isLoaded} = useCurrentGeoPosition(!historyData);
   const geoDataToRender = historyData ? historyData : geoData;
@@ -61,9 +60,17 @@ export default function HomeScreen({route}) {
 
       <View style={styles.innerContainer}>
         <Button
-          onPress={() => {
-            useCurrentGeoPosition(!historyData);
-          }}
+          onPress={() =>
+            navigation.reset({
+              index: 0,
+              routes: [
+                {
+                  name: 'Home',
+                  params: {someParam: 'AnyParam'},
+                },
+              ],
+            })
+          }
           buttonStyle={styles.checkLocationButtonContainer}
           titleStyle={styles.checkLocationButtonTitle}
           linearGradientProps={styles.checkLocationButtonGradient}

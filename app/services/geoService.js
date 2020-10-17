@@ -1,9 +1,9 @@
-import {check, PERMISSIONS, RESULTS} from 'react-native-permissions';
+import {check, PERMISSIONS, request, RESULTS} from 'react-native-permissions';
 import Geolocation from 'react-native-geolocation-service';
 
 export function getLocationPermission() {
   return new Promise((resolve, reject) => {
-    check(PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION)
+    request(PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION)
       .then((result) => {
         switch (result) {
           case RESULTS.GRANTED:
