@@ -1,11 +1,9 @@
-import {check, PERMISSIONS, RESULTS} from 'react-native-permissions';
+import {PERMISSIONS, request, RESULTS} from 'react-native-permissions';
 import Geolocation from 'react-native-geolocation-service';
-
-const APPID = '7461936da212f6a73296e33719a25f45';
 
 export function getLocationPermission() {
   return new Promise((resolve, reject) => {
-    check(PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION)
+    request(PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION)
       .then((result) => {
         switch (result) {
           case RESULTS.GRANTED:
@@ -51,4 +49,8 @@ export async function getWeatherDataByLatLng(lat, lon) {
   );
   const weatherInfo = await response.json();
   return weatherInfo;
+}
+
+export function createWeatherIconUri(icon) {
+  return `http://openweathermap.org/img/wn/${icon}@4x.png`;
 }

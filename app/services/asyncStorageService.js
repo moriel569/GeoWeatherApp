@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-community/async-storage';
 
-export const storeWeatherData = async (weatherData) => {
+export const saveItems = async (weatherData) => {
   try {
     const jsonWeatherData = JSON.stringify(weatherData);
     const storageKey = JSON.stringify(weatherData.date);
@@ -13,7 +13,7 @@ export const storeWeatherData = async (weatherData) => {
   }
 };
 
-export const fetchAllStoredItems = async () => {
+export const getItems = async () => {
   try {
     const keys = await AsyncStorage.getAllKeys();
     const geoDataItems = await AsyncStorage.multiGet(keys);
@@ -27,7 +27,7 @@ export const fetchAllStoredItems = async () => {
   }
 };
 
-export const removeItemValue = async (key) => {
+export const removeItemByKey = async (key) => {
   try {
     await AsyncStorage.removeItem(key);
     return true;
