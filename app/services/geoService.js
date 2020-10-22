@@ -1,5 +1,6 @@
 import {PERMISSIONS, request, RESULTS} from 'react-native-permissions';
 import Geolocation from 'react-native-geolocation-service';
+import Config from 'react-native-config';
 
 export function getLocationPermission() {
   return new Promise((resolve, reject) => {
@@ -37,9 +38,9 @@ export function getCurrentPosition() {
 }
 
 export async function getWeatherDataByLatLng(lat, lon) {
-  const APPID = '7461936da212f6a73296e33719a25f45';
+  const TOKEN = Config.OPEN_WEATHER_MAP_TOKEN;
   const response = await fetch(
-    `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${APPID}`,
+    `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${TOKEN}`,
     {
       method: 'GET',
       headers: {
